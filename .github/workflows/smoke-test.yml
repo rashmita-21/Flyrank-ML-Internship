@@ -73,9 +73,18 @@ jobs:
               except Exception:
                   continue
               code = [c for c in nb.get("cells", []) if c.get("cell_type") == "code"]
-              src = sum(len("".join(c.get("source", []))) for c in code)
-              has_out = any(c.get("outputs") for c in code)
-              if code and src > 200 and not has_out:
+              # Ignore instructional comment-only placeholders in unfinished legacy
+              # worksheets. Only notebooks with substantive executable code are checked.
+              executable = []
+              for cell in code:
+                  source = cell.get("source", [])
+                  source = "".join(source) if isinstance(source, list) else str(source)
+                  lines = [line for line in source.splitlines()
+                           if line.strip() and not line.lstrip().startswith("#")]
+                  if lines:
+                      executable.append(cell)
+              has_out = any(c.get("outputs") for c in executable)
+              if executable and not has_out:
                   kind = "error" if final else "warning"
                   print(f"::{kind} file={p}::{p} has filled code cells but no outputs - "
                         "did Colab save an unrun copy? Runtime -> Run all, then save again.")
