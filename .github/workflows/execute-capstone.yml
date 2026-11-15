@@ -32,8 +32,8 @@ jobs:
       - name: Execute capstone notebook from repository root
         run: |
           jupyter nbconvert --to notebook --execute --inplace \
-            --ExecutePreprocessor.timeout=900 \\
-            --ExecutePreprocessor.cwd="$GITHUB_WORKSPACE" \\
+            --ExecutePreprocessor.timeout=900 \
+            --ExecutePreprocessor.cwd="$GITHUB_WORKSPACE" \
             work/notebooks/capstone.ipynb
 
       - name: Commit saved notebook outputs
