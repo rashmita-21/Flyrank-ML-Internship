@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A reproducible, public-safe study of ranking content for human review using an anonymized 30,000-row FlyRank dataset.">
+<title>Can we rank declining content for review? — ML Capstone</title>
+<style>
+:root{--ink:#182126;--muted:#5d6a70;--paper:#fbfaf7;--line:#e5e1d8;--accent:#176b63;--soft:#eaf2ef;--gold:#c28b43;--serif:Georgia,"Times New Roman",serif;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.68 var(--sans)}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}a:hover{text-decoration-thickness:2px}
+.top{background:#142b2b;color:#f6f4ed;padding:14px max(24px,calc((100% - 1120px)/2));display:flex;justify-content:space-between;gap:18px;align-items:center;font-size:13px}
+.top strong{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:#b6d4c9}.top a{color:#d4e9df}
+.wrap{max-width:1120px;margin:auto;padding:0 26px}
+.hero{padding:76px 0 54px;border-bottom:1px solid var(--line)}
+.kicker{font:700 11px/1.4 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+h1{font:500 clamp(38px,6vw,68px)/1.06 var(--serif);letter-spacing:-.035em;max-width:900px;margin:20px 0 18px}
+.dek{font:21px/1.5 var(--serif);color:#435157;max-width:780px;margin:0 0 24px}
+.byline{color:var(--muted);font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:38px}
+.metric{border-top:2px solid var(--accent);padding:12px 12px 14px;background:#f2f1ec}
+.metric b{display:block;font:500 32px/1.2 var(--serif);font-variant-numeric:tabular-nums}
+.metric span{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:58px;padding:46px 0 90px}
+nav{position:sticky;top:24px;align-self:start;font-size:13px;line-height:1.45}
+nav .navtitle{font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:10px;color:var(--muted);margin-bottom:14px}
+nav a{display:block;text-decoration:none;color:#56636a;padding:7px 0;border-bottom:1px solid var(--line)}
+nav a:hover{color:var(--accent)}
+article{min-width:0;max-width:790px}
+section{padding:0 0 38px;margin:0 0 38px;border-bottom:1px solid var(--line);scroll-margin-top:28px}
+h2{font:500 34px/1.2 var(--serif);letter-spacing:-.02em;margin:0 0 18px}
+h3{font:700 16px/1.4 var(--sans);margin:25px 0 8px}
+p{margin:0 0 14px}
+.lead{font:20px/1.55 var(--serif);color:#36454b}
+.abstract{padding:22px 24px;background:var(--soft);border-left:3px solid var(--accent);font:18px/1.65 var(--serif)}
+.callout{background:#f2f1ec;padding:16px 18px;border-radius:3px;margin:18px 0;color:#3f4c51}
+.small{font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:18px 0}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:#f2f1ec}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+figure{margin:22px 0 28px;padding:18px;background:#fff;border:1px solid var(--line)}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+code{font: .9em ui-monospace,SFMono-Regular,Consolas,monospace;background:#eeece5;padding:2px 5px;border-radius:3px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#172827;color:#edf4ef;padding:16px;border-radius:4px;font-size:13px;line-height:1.55}
+ul,ol{padding-left:22px}li{margin:5px 0}
+.pill{display:inline-block;background:var(--soft);color:var(--accent);padding:3px 8px;border-radius:99px;font-size:11px;font-weight:700}
+footer{background:#142b2b;color:#e8eee9;padding:34px 0 44px}footer a{color:#c3e5d8}footer p{max-width:790px}
+@media(max-width:760px){.top{padding:12px 20px}.wrap{padding:0 20px}.hero{padding:52px 0 36px}.metrics{grid-template-columns:repeat(2,1fr)}.layout{display:block;padding-top:28px}nav{position:static;display:grid;grid-template-columns:repeat(2,1fr);gap:0 16px;margin-bottom:42px}nav .navtitle{grid-column:1/-1}h2{font-size:29px}.dek{font-size:19px}.abstract{font-size:17px}table{font-size:12px}th,td{padding:8px 6px}}
+</style>
+</head>
+<body>
+<div class="top"><strong>Applied ML · Research note</strong><span>FlyRank ML Internship · <a href="https://github.com/rashmita-21/Flyrank-ML-Internship">Repository ↗</a></span></div>
+<header class="wrap hero">
+<div class="kicker">Content intelligence / ranking for editorial review</div>
+<h1>Can we rank declining content for human review?</h1>
+<p class="dek">A reproducible comparison of a logistic-regression ranker and a transparent age-and-visibility baseline, followed by a human-reviewed action playbook.</p>
+<div class="byline">Author: <a href="https://github.com/rashmita-21">rashmita-21</a> · 15 November 2026 · Public-safe analysis</div>
+<div class="metrics">
+<div class="metric"><b>30,000</b><span>content items in the analyzed starter sample</span></div>
+<div class="metric"><b>32</b><span>pseudonymized client groups</span></div>
+<div class="metric"><b>0.604</b><span>Logistic Regression average precision on grouped holdout</span></div>
+<div class="metric"><b>0.70</b><span>Precision@20, versus 0.40 for the baseline</span></div>
+</div>
+</header>
+<div class="wrap layout">
+<nav aria-label="Contents"><div class="navtitle">On this page</div>
+<a href="#abstract">Abstract</a><a href="#introduction">1. Introduction</a><a href="#data">2. Data</a><a href="#method">3. Methodology</a><a href="#results">4. Results</a><a href="#limits">5. Limitations</a><a href="#recommendations">6. Recommendations</a><a href="#repro">7. Reproducibility</a><a href="#credit">8. Data credit</a></nav>
+<article>
+<section id="abstract"><div class="kicker">Abstract</div><h2>At a glance</h2>
+<div class="abstract">Can a supervised model rank content items carrying a historical decline label more usefully than a simple age-and-visibility rule? I analyzed the repository's anonymized 30,000-row starter dataset, containing 44 source columns for 32 pseudonymized client groups and trailing-90-day activity measures. I trained a Logistic Regression pipeline with a client-grouped 80/20 holdout and compared it with the Week 4 rule on the exact same 6,163 test rows. On that holdout, Logistic Regression reached Precision@20 of 0.70 and Precision@50 of 0.72, compared with 0.40 and 0.52 for the rule, while average precision was 0.6044 versus 0.4980. The resulting scores and action queue are intended only to help a person prioritize review; temporal feature overlap remains unresolved, so this is not a certified prospective forecast or evidence that refreshing content causes recovery.</div>
+</section>
+<section id="introduction"><div class="kicker">01 / Introduction</div><h2>The decision is what to review first</h2>
+<p class="lead">Content teams have more existing pages than they can inspect at once. A transparent rule can surface old pages with visibility, but it may miss other patterns and can rank many pages alike.</p>
+<p>This project asks whether a supervised model can improve the ordering of a content-review queue against a simple rule. The unit of analysis is one content item. The operational decision is whether an editor or SEO specialist should inspect that item sooner, investigate it, monitor it, or take no action.</p>
+<p>The target is a historical label derived from observed impression trends. It is not a Google ranking label, a forecast of future traffic, or a measure of the causal effect of a refresh. The value of the model is therefore limited to prioritization: it helps direct human attention, while a reviewer decides whether an edit is justified.</p>
+</section>
+<section id="data"><div class="kicker">02 / Data</div><h2>What was actually analyzed</h2>
+<p>The model and action-playbook results shown here use the <strong>anonymized starter CSV</strong> in this repository: <code>data/raw/content_refresh_anonymized.csv</code>. The file contains 30,000 rows and 44 source columns, with one row per pseudonymized content item across 32 pseudonymized clients. The prepared feature vector has 52 columns after the repository's preparation step.</p>
+<table><tbody>
+<tr><th>Source</th><td><code>content_refresh_anonymized.csv</code> (starter sample)</td></tr>
+<tr><th>Grain</th><td>One row per content item</td></tr>
+<tr><th>Coverage</th><td>30,000 rows · 44 source columns · 32 client groups</td></tr>
+<tr><th>Activity window</th><td>Trailing 90-day aggregates; trend compares the latest 30 days with the preceding 30 days</td></tr>
+<tr><th>Derived target</th><td><code>is_declining_label = 1</code> when <code>trend_direction == "down"</code>; all other trend categories are grouped as 0</td></tr>
+</tbody></table>
+<p>The repository separately documents a gated warehouse release with 78,835,655 daily performance rows, 519,606 content records, and query-level data. <strong>Those warehouse tables were not queried to produce the metrics in this paper.</strong> I do not present the starter-sample results as a 79-million-row analysis. The local CSV's export timestamp is not recorded in the data dictionary, so no exact calendar end date is asserted here.</p>
+<p>Identifiers <code>content_id</code> and <code>client_id</code> were retained only for joins, grouping, and validation, and excluded from model features. The label-source columns <code>trend_direction</code> and <code>trend_pct</code> were also excluded. No client names, domains, URLs, page titles, keywords, or raw search queries are included in this public analysis. The pipeline's feature lists also exclude provider/model metadata.</p>
+<p>Important data semantics: rates such as CTR are stored on a 0–100 percentage scale; <code>avg_position = 0</code> means position data is unavailable; missing keyword/content fields are systematic by content type rather than necessarily random.</p>
+</section>
+<section id="method"><div class="kicker">03 / Methodology</div><h2>A grouped holdout and a transparent comparison</h2>
+<h3>Label and features</h3>
+<p>The binary target is <code>trend_direction == "down"</code>. The repository's trend definition marks down when the latest 30-day impressions are more than 20% below the preceding 30 days; new, flat, up, and stable categories are grouped into the non-declining class. The target prevalence in the full sample is 54.21%.</p>
+<p>The Logistic Regression pipeline uses 26 repository-defined features: 18 numeric and 8 categorical. Numeric features include content age, days since update, search/engagement measures, and log-transformed activity totals; categorical features include content type, intent, and tier variables. Numeric values are median-imputed and scaled; categorical values are mode-imputed and one-hot encoded. The pipeline uses class weighting and a fixed random seed of 42.</p>
+<h3>Validation design</h3>
+<p>Week 5 uses <code>GroupShuffleSplit</code> with an 80/20 split grouped by <code>client_id</code> and random state 42. Training contains 23,837 rows from 25 clients; test contains 6,163 rows from 7 different clients. The train/test client overlap is zero. The test-set decline-label rate is 51.1%.</p>
+<h3>Baseline</h3>
+<p>The Week 4 baseline is a simple two-signal rule: assign one point for content age of at least 180 days and one point for at least 500 impressions in the trailing 90 days. Both the baseline and Logistic Regression rank the same held-out test items. Metrics are Precision@20, Precision@50, and average precision.</p>
+<h3>Leakage checks</h3>
+<p>Direct label-derived columns and both identifiers are absent from the model feature list, and the client-grouped split prevents the same client from appearing in train and test. However, the 90-day activity features may overlap the 30-day windows used to construct the historical decline label. The available snapshot does not provide a separate feature-availability timestamp that proves these signals predate the label window. Temporal leakage is therefore <strong>unresolved</strong>; the experiment is retrospective discrimination, not a verified future prediction.</p>
+</section>
+<section id="results"><div class="kicker">04 / Results</div><h2>Model ranking outperformed the simple rule on this holdout</h2>
+<p>On the same 6,163 test rows, Logistic Regression placed a higher share of declining-label items near the top of the review list than the Week 4 baseline. The test-set prevalence was 51.1%, shown as context rather than a substitute for a ranking baseline.</p>
+<figure><img src="assets/holdout-comparison.svg" alt="Bar chart comparing Precision at 20 and Precision at 50 for the baseline and Logistic Regression"><figcaption>Figure 1. Precision at the top of the ranked list on the same client-grouped test set. Logistic Regression: 0.70 at 20 and 0.72 at 50; baseline: 0.40 and 0.52.</figcaption></figure>
+<table><thead><tr><th>Method</th><th class="num">Precision@20</th><th class="num">Precision@50</th><th class="num">Average precision</th></tr></thead><tbody>
+<tr><td>Week 4 age + visibility rule</td><td class="num">0.400</td><td class="num">0.520</td><td class="num">0.4980</td></tr>
+<tr><td><strong>Logistic Regression</strong></td><td class="num"><strong>0.700</strong></td><td class="num"><strong>0.720</strong></td><td class="num"><strong>0.6044</strong></td></tr>
+</tbody></table>
+<p>Week 6 adds a five-fold GroupKFold out-of-fold sensitivity check for the Logistic Regression model: average precision 0.6678, Precision@20 0.75, and Precision@50 0.74 across 30,000 out-of-fold predictions. This is a different evaluation procedure from the single Week 5 holdout, so it is reported as a validation sensitivity result, not as a direct baseline comparison or evidence of model improvement.</p>
+<figure><img src="assets/permutation-importance.svg" alt="Bar chart of the leading permutation importance features"><figcaption>Figure 2. Leading Week 5 permutation importances measured as the change in average precision after feature shuffling. These are predictive associations, not causal effects.</figcaption></figure>
+<p>The leading signals were log impressions (0.0734), log clicks (0.0585), average position (0.0372), and content age (0.0310). False positives included visible older pages and newer pages with lower traffic; false negatives included very low-impression pages. The model can therefore over-prioritize visible pages and miss declines where little traffic is available.</p>
+</section>
+<section id="limits"><div class="kicker">05 / Limitations</div><h2>What these results do not establish</h2>
+<ul>
+<li><strong>Not a 79M-row result.</strong> The reported experiment uses the 30k-row starter CSV, not the separate gated warehouse.</li>
+<li><strong>Retrospective label.</strong> The target is derived from historical impression movement; it does not directly measure future rankings, business value, or refresh success.</li>
+<li><strong>Temporal overlap risk.</strong> Some 90-day predictors may overlap the target's comparison window. A time-aligned feature/label design is needed before prospective use.</li>
+<li><strong>Limited generalization.</strong> There are 32 client groups in this sample and only 7 held out in the single holdout. New clients, seasons, and search environments may differ.</li>
+<li><strong>Observational data.</strong> No controlled intervention or matched causal design was run. A refresh cannot be said to cause recovery from these results.</li>
+<li><strong>Ranking metrics have sampling noise.</strong> Precision@20 is based on only 20 items; report it alongside Precision@50, average precision, and the test base rate.</li>
+<li><strong>Action queue confidence is not calibration.</strong> Confidence tiers are operational thresholds, not calibrated probabilities that an action will succeed.</li>
+</ul>
+<div class="callout"><strong>Safe interpretation:</strong> On this anonymized sample, the model ranked historical decline labels more effectively than the simple rule on the tested grouped holdout. This is directional decision-support evidence for human review, not proof of future decline, ranking changes, or causal refresh impact.</div>
+</section>
+<section id="recommendations"><div class="kicker">06 / Ranked recommendations</div><h2>Turn the score into a review queue, not an autopilot</h2>
+<p>The Week 7 playbook used the pipeline-selected Random Forest probabilities and the normalized baseline score. Its final score is <code>100 × (0.70 × model probability + 0.30 × normalized baseline)</code>. It is a relative review-priority score, not the probability that a refresh will work.</p>
+<figure><img src="assets/action-mix.svg" alt="Horizontal bar chart showing the action distribution across 30,000 items"><figcaption>Figure 3. Suggested actions recorded by the Week 7 playbook run. Counts are aggregate only; no row-level queue is published.</figcaption></figure>
+<table><thead><tr><th>Rank</th><th>Suggested action</th><th class="num">Items</th><th>Human next step</th></tr></thead><tbody>
+<tr><td>1</td><td><code>monitor</code></td><td class="num">13,083</td><td>Keep under observation; do not force an edit.</td></tr>
+<tr><td>2</td><td><code>refresh</code></td><td class="num">8,188</td><td>Diagnose the decline and verify freshness before editing.</td></tr>
+<tr><td>3</td><td><code>refresh_and_review_ctr</code></td><td class="num">6,654</td><td>Review search intent, title/snippet fit, position, and CTR.</td></tr>
+<tr><td>4</td><td><code>refresh_and_review_engagement</code></td><td class="num">1,993</td><td>Review usefulness, content structure, and page experience.</td></tr>
+<tr><td>5</td><td><code>expand_and_refresh</code></td><td class="num">82</td><td>Check whether important user needs are missing before expanding.</td></tr>
+</tbody></table>
+<p>The queue contains 30,000 unique content items. Its confidence labels were 3,602 high, 11,398 medium, and 15,000 low; low-confidence items are flagged for additional investigation. Every item still requires human approval.</p>
+<h3>Human review checklist</h3>
+<ol><li>Confirm the page is live, relevant, and still serves a real user need.</li><li>Verify reason codes against source metrics; inspect impressions, clicks, sessions, CTR, and position.</li><li>Check intent, factual accuracy, content quality, seasonality, tracking changes, and cannibalization.</li><li>Estimate effort and potential value; record refresh, investigate, monitor, or no-action.</li></ol>
+<h3>No-go list</h3>
+<p>No automatic publishing, rewriting, deletion, URL changes, redirects, canonical/schema/metadata edits, or sensitive editorial decisions. The model must not override an editor, subject-matter expert, or client approval.</p>
+<h3>Monitoring and retraining</h3>
+<p>Monitor duplicate IDs, missing scores, feature availability, score distributions, client/content mix, reviewer acceptance and rejection, and later outcomes. Investigate schema changes, missingness shifts, score-distribution changes, or repeated low-value top-ranked recommendations. Retrain only after checking label consistency and feature timing, collecting enough new labels, and passing a fresh grouped or time-aware validation; a traffic change alone is not a retraining trigger.</p>
+</section>
+<section id="repro"><div class="kicker">07 / Reproducibility</div><h2>Inspect the work and rerun the pipeline</h2>
+<p>The repository contains the analysis notebooks, source scripts, data dictionary, and environment requirements. The Week 5 notebook documents the same-split Logistic Regression comparison; Week 6 documents grouped out-of-fold validation and the leakage audit; Week 7 documents the ranked action playbook and human-review policy.</p>
+<ul>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship">Repository</a></li>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/work/notebooks/w05_model.ipynb">Week 5 — model and baseline comparison</a></li>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/work/notebooks/w06_validation_audit.ipynb">Week 6 — validation and leakage audit</a></li>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/work/notebooks/w07_action_playbook.ipynb">Week 7 — action playbook</a></li>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/work/notebooks/capstone.ipynb">Capstone notebook</a></li>
+<li><a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/scripts/ml_utils.py">Feature definitions</a> · <a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/scripts/02_baseline_score.py">Baseline script</a> · <a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/scripts/03_train_model.py">Training script</a></li>
+</ul>
+<p>For the reference pipeline, install the pinned project dependencies and run from a fresh clone:</p>
+<pre>pip install -r requirements.txt
+python scripts/run_all.py</pre>
+<p>For the Week 5 comparison, open and run <code>work/notebooks/w05_model.ipynb</code> top to bottom. It uses random state 42, the repository's feature lists, and a client-grouped 80/20 holdout. The capstone notebook in this repository assembles the same evidence and generates the paper figures.</p>
+<p class="small">The historical metrics in this paper are transcribed from the committed Week 5–7 notebook outputs. The Week 7 row-level queue is intentionally not published; only aggregate counts and policy summaries are shown.</p>
+</section>
+<section id="credit"><div class="kicker">08 / Acknowledgments</div><h2>Data credit</h2>
+<p>Built on the <a href="https://flyrank.ai">FlyRank ML Internship dataset</a>. The starter sample is anonymized and supplied for educational analysis; the repository's <a href="https://github.com/rashmita-21/Flyrank-ML-Internship/blob/main/DATA_USE.md">data-use rules</a> govern its handling and public presentation.</p>
+</section>
+</article></div>
+<footer><div class="wrap"><p><strong>Research note · Content decline ranking</strong></p><p>This page reports retrospective model evaluation on an anonymized starter sample. It is intended for technical discussion and portfolio review, not operational decisions without independent validation.</p><p><a href="https://github.com/rashmita-21/Flyrank-ML-Internship">View source repository ↗</a></p></div></footer>
+</body></html>
