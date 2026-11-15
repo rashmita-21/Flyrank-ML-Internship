@@ -1,0 +1,93 @@
+{
+  "paper_title": "Can we rank declining content for human review?",
+  "author": "rashmita-21",
+  "analysis_scope": "anonymized 30000-row starter CSV; not the 78,835,655-row warehouse",
+  "data": {
+    "rows": 30000,
+    "source_columns": 44,
+    "prepared_columns": 52,
+    "client_groups": 32,
+    "decline_rate": 0.5421,
+    "trailing_window_days": 90,
+    "trend_windows_days": [
+      30,
+      30
+    ]
+  },
+  "validation": {
+    "method": "GroupShuffleSplit",
+    "test_size": 0.2,
+    "random_state": 42,
+    "train_rows": 23837,
+    "test_rows": 6163,
+    "train_clients": 25,
+    "test_clients": 7,
+    "client_overlap": 0,
+    "test_decline_rate": 0.511
+  },
+  "week5_same_holdout": [
+    {
+      "method": "Week 4 baseline",
+      "precision_at_20": 0.4,
+      "precision_at_50": 0.52,
+      "average_precision": 0.498
+    },
+    {
+      "method": "Logistic Regression",
+      "precision_at_20": 0.7,
+      "precision_at_50": 0.72,
+      "average_precision": 0.6044
+    }
+  ],
+  "week6_groupkfold_oof": {
+    "folds": 5,
+    "rows": 30000,
+    "average_precision": 0.6678,
+    "precision_at_20": 0.75,
+    "precision_at_50": 0.74,
+    "note": "Different evaluation procedure; not a direct baseline comparison."
+  },
+  "permutation_importance": [
+    {
+      "feature": "log_impressions_90d",
+      "importance": 0.0734
+    },
+    {
+      "feature": "log_clicks_90d",
+      "importance": 0.0585
+    },
+    {
+      "feature": "avg_position",
+      "importance": 0.0372
+    },
+    {
+      "feature": "content_age_days",
+      "importance": 0.031
+    }
+  ],
+  "week7_queue": {
+    "rows": 30000,
+    "score_formula": "100 * (0.70 * best_model_probability + 0.30 * normalized_baseline_score)",
+    "score_mean": 49.7995,
+    "score_median": 53.6075,
+    "score_p90": 68.1714,
+    "confidence": {
+      "high": 3602,
+      "medium": 11398,
+      "low": 15000
+    },
+    "suggested_actions": {
+      "monitor": 13083,
+      "refresh": 8188,
+      "refresh_and_review_ctr": 6654,
+      "refresh_and_review_engagement": 1993,
+      "expand_and_refresh": 82
+    }
+  },
+  "caveats": [
+    "Starter sample only; warehouse not queried.",
+    "Temporal overlap between 90-day features and label windows remains unresolved.",
+    "No causal or prospective claim.",
+    "Queue confidence tiers are not calibrated probabilities."
+  ]
+}
